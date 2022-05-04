@@ -1,0 +1,106 @@
+[2022-05-03 11:14:22,660] {manager.py:514} INFO - Processing files using up to 2 processes at a time 
+[2022-05-03 11:14:22,661] {manager.py:515} INFO - Process each file at most once every 60 seconds
+[2022-05-03 11:14:22,662] {manager.py:517} INFO - Checking for new files in /opt/airflow/dags every 60 seconds
+[2022-05-03 11:14:22,663] {manager.py:663} INFO - Searching for files in /opt/airflow/dags
+[2022-05-03 11:14:22,667] {manager.py:666} INFO - There are 0 files in /opt/airflow/dags
+[2022-05-03 11:14:22,740] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:14:22,745] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:09:22.745034+00:00
+[2022-05-03 11:14:32,823] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:14:32,824] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:09:32.824818+00:00
+[2022-05-03 11:14:42,847] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:14:42,848] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:09:42.848400+00:00
+[2022-05-03 11:14:52,869] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:14:52,870] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:09:52.870739+00:00
+[2022-05-03 11:15:02,889] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:15:02,891] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:10:02.891236+00:00
+[2022-05-03 11:15:12,910] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:15:12,911] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:10:12.911267+00:00
+[2022-05-03 11:15:22,866] {manager.py:663} INFO - Searching for files in /opt/airflow/dags
+[2022-05-03 11:15:22,870] {manager.py:666} INFO - There are 0 files in /opt/airflow/dags
+[2022-05-03 11:15:22,932] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:15:22,936] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:10:22.936877+00:00
+[2022-05-03 11:15:32,964] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:15:32,966] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:10:32.966571+00:00
+[2022-05-03 11:15:42,985] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:15:42,991] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:10:42.991356+00:00
+[2022-05-03 11:15:53,011] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:15:53,016] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:10:53.016101+00:00
+[2022-05-03 11:16:03,049] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:16:03,053] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:11:03.053450+00:00
+[2022-05-03 11:16:13,076] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:16:13,078] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:11:13.078322+00:00
+[2022-05-03 11:16:23,007] {manager.py:663} INFO - Searching for files in /opt/airflow/dags
+[2022-05-03 11:16:23,011] {manager.py:666} INFO - There are 0 files in /opt/airflow/dags
+[2022-05-03 11:16:23,098] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:16:23,103] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:11:23.103242+00:00
+[2022-05-03 11:16:33,132] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:16:33,133] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:11:33.133476+00:00
+[2022-05-03 11:16:43,151] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:16:43,154] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:11:43.154347+00:00
+[2022-05-03 11:16:53,174] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:16:53,175] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:11:53.175899+00:00
+[2022-05-03 11:17:03,195] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:17:03,196] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:12:03.196043+00:00
+[2022-05-03 11:17:13,214] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:17:13,215] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:12:13.215136+00:00
+[2022-05-03 11:17:23,134] {manager.py:663} INFO - Searching for files in /opt/airflow/dags
+[2022-05-03 11:17:23,138] {manager.py:666} INFO - There are 0 files in /opt/airflow/dags
+[2022-05-03 11:17:23,233] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:17:23,234] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:12:23.234224+00:00
+[2022-05-03 11:17:33,255] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:17:33,258] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:12:33.258007+00:00
+[2022-05-03 11:17:43,278] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:17:43,280] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:12:43.280412+00:00
+[2022-05-03 11:17:53,302] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:17:53,304] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:12:53.304101+00:00
+[2022-05-03 11:18:03,322] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:18:03,323] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:13:03.323688+00:00
+[2022-05-03 11:18:13,340] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:18:13,340] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:13:13.340926+00:00
+[2022-05-03 11:18:23,276] {manager.py:663} INFO - Searching for files in /opt/airflow/dags
+[2022-05-03 11:18:23,288] {manager.py:666} INFO - There are 0 files in /opt/airflow/dags
+[2022-05-03 11:18:23,375] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:18:23,376] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:13:23.376675+00:00
+[2022-05-03 11:18:33,394] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:18:33,398] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:13:33.398422+00:00
+[2022-05-03 11:18:43,432] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:18:43,437] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:13:43.436849+00:00
+[2022-05-03 11:18:53,471] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:18:53,476] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:13:53.475820+00:00
+[2022-05-03 11:19:03,497] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:19:03,502] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:14:03.502356+00:00
+[2022-05-03 11:19:13,523] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:19:13,526] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:14:13.526153+00:00
+[2022-05-03 11:19:23,417] {manager.py:663} INFO - Searching for files in /opt/airflow/dags
+[2022-05-03 11:19:23,421] {manager.py:666} INFO - There are 0 files in /opt/airflow/dags
+[2022-05-03 11:19:23,543] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:19:23,545] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:14:23.545065+00:00
+[2022-05-03 11:19:33,564] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:19:33,566] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:14:33.566684+00:00
+[2022-05-03 11:19:43,587] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:19:43,588] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:14:43.588673+00:00
+[2022-05-03 11:19:53,608] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:19:53,613] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:14:53.613061+00:00
+[2022-05-03 11:20:03,636] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:20:03,637] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:15:03.637725+00:00
+[2022-05-03 11:20:13,656] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:20:13,657] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:15:13.657731+00:00
+[2022-05-03 11:20:23,546] {manager.py:663} INFO - Searching for files in /opt/airflow/dags
+[2022-05-03 11:20:23,549] {manager.py:666} INFO - There are 0 files in /opt/airflow/dags
+[2022-05-03 11:20:23,676] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:20:23,677] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:15:23.677542+00:00
+[2022-05-03 11:20:33,697] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:20:33,698] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:15:33.698550+00:00
+[2022-05-03 11:20:43,715] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:20:43,716] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:15:43.716750+00:00
+[2022-05-03 11:20:53,734] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:20:53,736] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:15:53.736277+00:00
+[2022-05-03 11:21:03,754] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:21:03,755] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:16:03.755835+00:00
+[2022-05-03 11:21:13,775] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:21:13,776] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:16:13.776169+00:00
+[2022-05-03 11:21:23,670] {manager.py:663} INFO - Searching for files in /opt/airflow/dags
+[2022-05-03 11:21:23,673] {manager.py:666} INFO - There are 0 files in /opt/airflow/dags
+[2022-05-03 11:21:23,795] {manager.py:1065} INFO - Finding 'running' jobs without a recent heartbeat
+[2022-05-03 11:21:23,799] {manager.py:1069} INFO - Failing jobs without heartbeat after 2022-05-03 11:16:23.798852+00:00
+[2022-05-03 11:21:25,327] {manager.py:495} INFO - Exiting gracefully upon receiving signal 15

@@ -1,0 +1,63 @@
+version: '3.9'
+services:
+  #jupyter is optional, it is just for testing
+  jupyter_notebook:
+    image: jupyter/minimal-notebook:latest
+    container_name: jupyter_notebook
+    environment:
+      - JUPYTER_ENABLE_LAB=YES
+    ports:
+      - 8888:8888
+    volumes:
+      - .:/home/jovyan/work
+    depends_on:
+      - database
+    links:
+      - database
+    networks:
+      - etl_network
+  
+  database:
+    image: postgres:11
+    container_name: database
+    ports:
+      - 5431:5432
+    environment:
+      - POSTGRES_DB=planetly
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_HOST=database
+      - POSTGRES_PORT=5432
+    healthcheck:
+      test: ["CMD", 
+              "pg_isready",
+              "-U",
+              "postgres",
+              "-d",
+              "planetly"]
+      interval: 5s
+      retries: 5
+    restart: always
+    volumes:
+      - planetly-data:/var/lib/postgresql/data
+      - ./initial.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - etl_network
+  #for web interface of pgadmin
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    ports:
+      - 5556:80
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=aniket@gmail.com
+      - PGADMIN_DEFAULT_PASSWORD=password
+    depends_on:
+      - database
+    networks:
+      - etl_network
+
+volumes:
+  planetly-data:
+
+networks:
+  etl_network:
