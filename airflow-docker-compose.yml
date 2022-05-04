@@ -27,6 +27,9 @@ x-airflow-common:
     - ./dags:/opt/airflow/dags
     - ./logs:/opt/airflow/logs
     - ./plugins:/opt/airflow/plugins
+    - ./data:/opt/airflow/data
+    - ./data/incoming_data:/opt/airflow/data/incoming_data
+    - ./data/used_data:/opt/airflow/data/used_data
   user: "${AIRFLOW_UID:-50000}:0"
   mem_limit: 4000m
   depends_on:

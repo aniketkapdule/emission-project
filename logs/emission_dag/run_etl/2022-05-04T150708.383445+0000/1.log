@@ -1,0 +1,39 @@
+[2022-05-04 15:07:09,656] {taskinstance.py:1032} INFO - Dependencies all met for <TaskInstance: emission_dag.run_etl manual__2022-05-04T15:07:08.383445+00:00 [queued]>
+[2022-05-04 15:07:09,684] {taskinstance.py:1032} INFO - Dependencies all met for <TaskInstance: emission_dag.run_etl manual__2022-05-04T15:07:08.383445+00:00 [queued]>
+[2022-05-04 15:07:09,685] {taskinstance.py:1238} INFO - 
+--------------------------------------------------------------------------------
+[2022-05-04 15:07:09,686] {taskinstance.py:1239} INFO - Starting attempt 1 of 2
+[2022-05-04 15:07:09,687] {taskinstance.py:1240} INFO - 
+--------------------------------------------------------------------------------
+[2022-05-04 15:07:09,710] {taskinstance.py:1259} INFO - Executing <Task(PythonOperator): run_etl> on 2022-05-04 15:07:08.383445+00:00
+[2022-05-04 15:07:09,721] {standard_task_runner.py:52} INFO - Started process 5344 to run task
+[2022-05-04 15:07:09,725] {standard_task_runner.py:76} INFO - Running: ['***', 'tasks', 'run', 'emission_dag', 'run_etl', 'manual__2022-05-04T15:07:08.383445+00:00', '--job-id', '5', '--raw', '--subdir', 'DAGS_FOLDER/emission-dag.py', '--cfg-path', '/tmp/tmpsvf08983', '--error-file', '/tmp/tmpdjil3lul']
+[2022-05-04 15:07:09,726] {standard_task_runner.py:77} INFO - Job 5: Subtask run_etl
+[2022-05-04 15:07:09,796] {logging_mixin.py:109} INFO - Running <TaskInstance: emission_dag.run_etl manual__2022-05-04T15:07:08.383445+00:00 [running]> on host 936fa37c1ac0
+[2022-05-04 15:07:09,853] {taskinstance.py:1426} INFO - Exporting the following env vars:
+AIRFLOW_CTX_DAG_OWNER=Aniket
+AIRFLOW_CTX_DAG_ID=emission_dag
+AIRFLOW_CTX_TASK_ID=run_etl
+AIRFLOW_CTX_EXECUTION_DATE=2022-05-04T15:07:08.383445+00:00
+AIRFLOW_CTX_DAG_RUN_ID=manual__2022-05-04T15:07:08.383445+00:00
+[2022-05-04 15:07:09,855] {logging_mixin.py:109} INFO - >>> Running 'extract' function. Logged at 2022-05-04 15:07:09.855024+00:00
+[2022-05-04 15:07:09,855] {logging_mixin.py:109} INFO - extracting the data
+[2022-05-04 15:07:09,923] {logging_mixin.py:109} INFO - >>> Function: 'extract' executed. Logged at 2022-05-04 15:07:09.855024+00:00
+[2022-05-04 15:07:09,952] {logging_mixin.py:109} INFO -             name  first_name       city
+0         Treker  Westbrooke   Gongping
+1       Ghiroldi    Cecilius    Ciheras
+2    Francescone     Giavani     Oefatu
+3       Brayshaw         Bab      Uripa
+4         Aldren      Selene  Peachland
+..           ...         ...        ...
+995        Jopke       Biddy     Numazu
+996      Belhome     Sephira  Carpenter
+997        Rivel      Hermie     Plérin
+998     Ludlamme       Niels    Lubenec
+999      Ashfold       Prinz    Qinghua
+
+[1000 rows x 3 columns]
+[2022-05-04 15:07:09,954] {python.py:175} INFO - Done. Returned value was: None
+[2022-05-04 15:07:09,988] {taskinstance.py:1277} INFO - Marking task as SUCCESS. dag_id=emission_dag, task_id=run_etl, execution_date=20220504T150708, start_date=20220504T150709, end_date=20220504T150709
+[2022-05-04 15:07:10,060] {local_task_job.py:154} INFO - Task exited with return code 0
+[2022-05-04 15:07:10,113] {local_task_job.py:264} INFO - 0 downstream tasks scheduled from follow-on schedule check
