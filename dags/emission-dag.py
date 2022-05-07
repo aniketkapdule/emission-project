@@ -74,6 +74,17 @@ def select_table_from_db(table):
     print(f"selected {table}")
     return df
 
+def create_date_dim(start_date='2010-01-01', end_date='2030-01-01'):
+    df = pd.DataFrame({"date":pd.date_range(start_date, end_date)})
+    df["week_day"] = df.date.dt.day_name()
+    df["day"] = df.date.dt.day
+    df["month"] = df.date.dt.month
+    df["week"] = df.date.dt.isocalendar().week
+    df["quarter"] = df.date.dt.quarter
+    df["year"] = df.date.dt.year
+    df.insert(0, 'date_id', (df.year.astype(str) + df.month.astype(str).str.zfill(2) + df.day.astype(str).str.zfill(2)).astype(int))
+    return df
+
 @logger
 def create_tables():
     db_engine, cursor = connect_db()
@@ -106,6 +117,44 @@ def create_tables():
     );''')
     print('car done')
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS country(
+            country_id SERIAL PRIMARY KEY,
+            country_name VARCHAR(50)
+        );
+        """)
+    
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS city(
+            city_id SERIAL PRIMARY KEY,
+            city_name VARCHAR(50),
+            country_id INT,
+            CONSTRAINT fk__country__country_id__city__country_id
+            FOREIGN KEY (country_id)
+            REFERENCES country(country_id)
+            ON UPDATE CASCADE ON DELETE CASCADE
+        );
+        """)
+
+    # Adding date dimension table if not exists
+    database_tables = pd.read_sql_query("""SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE';""", db_engine)
+    if 'date' in database_tables['table_name'].values:
+        pass
+    else:
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS date(
+	            date_id INT PRIMARY KEY,
+	            date DATE,
+	            week_day VARCHAR(10),
+	            day INT,
+	            month INT,
+	            week INT,
+	            quarter INT,
+	            year INT
+            );
+        """)
+        load(create_date_dim(), 'date', if_exists='append')
+
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS car_driver_log(
 	    car_id INT,
@@ -115,7 +164,7 @@ def create_tables():
 	    target_city VARCHAR(50),
 	    target_country VARCHAR(50),
 	    distance_km FLOAT,
-	    date DATE,
+	    date_id INT,
 	    total_emission FLOAT,
 	    CONSTRAINT fk__cars__car_id__car_driver_log__car_id
 	    FOREIGN KEY (car_id)
@@ -124,9 +173,14 @@ def create_tables():
 	    CONSTRAINT fk__drivers__driver_id__car_driver_log__driver_id
 	    FOREIGN KEY (driver_id)
 	    REFERENCES drivers(driver_id)
+	    ON UPDATE CASCADE ON DELETE RESTRICT,
+        CONSTRAINT fk__date__date_id__car_driver_log__date_id
+	    FOREIGN KEY (date_id)
+	    REFERENCES date(date_id)
 	    ON UPDATE CASCADE ON DELETE RESTRICT
     );''')   
     print('car_driver_log done')
+
 
 @logger
 def extract(drivers, vehicle_fuel_consumptions, drivers_logbook):
@@ -161,7 +215,6 @@ def transform_and_load():
         load(df_drivers_clean, table_name='drivers')
     else:
         pass
-
     #cars table
     df_veh_cons_raw.rename(columns={'BRAND':'brand', 'MODEL':'model', 'VEHICLE CLASS':'vehicle_class', 'ENGINE SIZE L':'engine_size_l', 'CYLINDERS':'cylinders',
        'TRANSMISSION':'transmission', 'FUEL_TYPE':'fuel_type', 'FUEL CONSUMPTION (L/100 km)':'fuel_consumption_l_per_hundred_km',
@@ -181,32 +234,103 @@ def transform_and_load():
         pass
     
     load(df_drivers_logbook_raw, table_name='drivers_logbook_raw')
-
     df_cars_db = select_table_from_db(table="cars")
     df_drivers_db = select_table_from_db(table="drivers")
+
+
     
     # this if condition will check if we have received the new data or not.
     if len(df_drivers_logbook_raw) > 0:
+        # country table transformation
+        df_country_count = pd.read_sql_query("SELECT count(country_id) FROM country;", db_engine)
+        country_count = df_country_count.iloc[0].values[0]
+        df_s_country_logbook= df_drivers_logbook_raw[['start_country']].drop_duplicates().rename(columns={'start_country':'country_name'}).reset_index(drop=True)
+        df_t_country_logbook= df_drivers_logbook_raw[['target_country']].drop_duplicates().rename(columns={'target_country':'country_name'}).reset_index(drop=True)
+        if country_count == 0:    
+            df_country_clean = pd.concat([df_s_country_logbook, df_t_country_logbook], axis=0).drop_duplicates().reset_index(drop=True)
+            load(df_country_clean, 'country')
+        else:
+            df_country_db = select_table_from_db('country')
+            df_country = df_s_country_logbook.merge(df_country_db, how='left', on=['country_name'], indicator=True)
+            df_country_clean = df_country[df_country['_merge'] == 'left_only'].drop('_merge', axis=1)
+            if len(df_country_clean) > 0:
+                load(df_country_clean, 'country')
+            else:
+                pass
+        
+        # city table transformation
+        df_city_count = pd.read_sql_query("SELECT count(city_id) FROM city;", db_engine)
+        city_count = df_city_count.iloc[0].values[0]
+        df_s_city_logbook = df_drivers_logbook_raw[['start_city', 'start_country']].drop_duplicates().rename(columns={'start_city':'city_name', 'start_country':'country_name'}).reset_index(drop=True)
+        df_t_city_logbook = df_drivers_logbook_raw[['target_city', 'target_country']].drop_duplicates().rename(columns={'target_city':'city_name','target_country':'country_name'}).reset_index(drop=True)
+        if city_count==0:
+            df_country_db = select_table_from_db('country')
+            df_city = pd.concat([df_s_city_logbook, df_t_city_logbook], axis=0).drop_duplicates().reset_index(drop=True)
+            df_city_country = df_city.merge(df_country_clean, how='left', on=['country_name'])
+            df_city_country_clean = df_city_country.merge(df_country_db, how='left', on=['country_name'])
+            df_city_country_clean.drop(columns=['country_name'], inplace=True)
+            load(df_city_country_clean, 'city')
+        else:
+            df_city_db = select_table_from_db('city')
+            df_city = pd.concat([df_s_city_logbook, df_t_city_logbook], axis=0).drop_duplicates().reset_index(drop=True)
+            df_city_country_merge = df_city.merge(df_city_db, how='left', on=['city_name'], indicator=True)
+            df_city_country_clean = df_city_country_merge.loc[df_city_country_merge['_merge']=='left_only'].drop(columns=['_merge', 'country_name'])
+            load(df_city_country_clean, 'city')
+
+        #adding car_id in car_driver_log
         df_car_log = df_cars_db.merge(df_drivers_logbook_raw, how='right', on=['brand', 'model', 'engine_size_l', 'cylinders', 'fuel_type', 'transmission'])
+        
         # adding a total_emission column
         values = df_car_log.distance_km * df_car_log.co2_emission_g_per_km
         df_car_log['total_emission'] = values
+
+        # adding driver_id in car_driver_log
         df_car_driver_log_raw = df_car_log.merge(df_drivers_db, how='left', on=['name', 'first_name'])[['car_id', 'driver_id', 'start_city', 'start_country', 'target_city',
             'target_country', 'distance_km', 'date', 'total_emission']]
+        df_car_driver_log_raw['date'] = pd.to_datetime(df_car_driver_log_raw['date'])
+        df_date_db = select_table_from_db('date')
+        df_date_db['date'] = pd.to_datetime(df_date_db['date'])
+
+        # adding date_id in car_driver_log
+        df_car_driver_date_log_raw = df_car_driver_log_raw.merge(df_date_db, how='left', on=['date'])
+        df_car_driver_date_log_raw = df_car_driver_date_log_raw[['car_id', 'driver_id', 'start_city', 'start_country', 'target_city', 'target_country', 'distance_km', 'date_id', 'total_emission']]
+        
+        #adding city_id in car_driver_log
+        df_city_db = select_table_from_db('city')
+        df_car_driver_date_start_city_raw = df_car_driver_date_log_raw.merge(df_city_db, how='left',    \
+        left_on=['start_city'], right_on=['city_name'])  \
+        [['car_id', 'driver_id', 'city_id', 'start_country', 'target_city', 'target_country', 'distance_km', 'date_id', 'total_emission']] \
+        .rename(columns={'city_id':'start_city_id'})
+        df_car_driver_date_target_city_raw = df_car_driver_date_start_city_raw.merge(df_city_db, how='left',    \
+        left_on=['target_city'], right_on=['city_name'])  \
+        [['car_id', 'driver_id', 'start_city_id', 'city_id', 'start_country', 'target_country', 'distance_km', 'date_id', 'total_emission']] \
+        .rename(columns={'city_id':'target_city_id'})
+
+        #adding country_id in car_driver_log
+        df_country_db = select_table_from_db('country')
+        df_car_driver_date_start_city_raw = df_car_driver_date_target_city_raw.merge(df_country_db, how='left',    \
+        left_on=['start_country'], right_on=['country_name'])  \
+        [['car_id', 'driver_id', 'start_city_id', 'target_city_id', 'country_id', 'target_country', 'distance_km', 'date_id', 'total_emission']] \
+        .rename(columns={'country_id':'start_country_id'})
+        df_car_driver_date_city_country_raw = df_car_driver_date_start_city_raw.merge(df_country_db, how='left',    \
+        left_on=['target_country'], right_on=['country_name'])  \
+        [['car_id', 'driver_id', 'start_city_id', 'target_city_id', 'start_country_id', 'country_id', 'distance_km', 'date_id', 'total_emission']] \
+        .rename(columns={'country_id':'target_country_id'})        
+
+
         df_cdl_count = pd.read_sql_query("SELECT COUNT(car_id) FROM car_driver_log;", db_engine)
         cdl_count = df_cdl_count.iloc[0].values[0]
         if cdl_count == 0:
-            df_car_driver_log_clean = df_car_driver_log_raw.drop_duplicates(subset=['car_id', 'driver_id', 'start_city', 'start_country', 'target_country', 'target_city'])
-            load(df_car_driver_log_clean, table_name='car_driver_log')
+            df_car_driver_date_city_country_clean = df_car_driver_date_city_country_raw.drop_duplicates(subset=['car_id', 'driver_id', 'start_city_id', 'start_country_id', 'target_country_id', 'target_city_id', 'date_id'])
+            load(df_car_driver_date_city_country_clean, table_name='car_driver_log')
         else:
             df_car_driver_log_db = select_table_from_db(table='car_driver_log')
-            df_car_driver_log_merge = df_car_driver_log_raw.merge(df_car_driver_log_db, on=['car_id', 'driver_id', \
-            'start_city', 'start_country', 'target_country', 'target_city'], how='left', indicator=True)
-            df_car_driver_log_clean = df_car_driver_log_merge[df_car_driver_log_merge['_merge'] == 'left_only'].drop(['distance_km_y', 'date_y', \
-            'total_emission_y', '_merge'], axis=1).rename(columns={'distance_km_x':'distance_km', 'date_x':'date', 'total_emission_x':'total_emission'})
-            df_car_driver_log_clean['date']= pd.to_datetime(df_car_driver_log_clean['date']) # making sure the datatype of date column
-            load(df_car_driver_log_clean, 'car_driver_log')
-            print(df_car_driver_log_clean)
+            df_car_driver_date_city_country_merge = df_car_driver_date_city_country_raw.merge(df_car_driver_log_db, on=['car_id', 'driver_id', \
+            'start_city_id', 'start_country_id', 'target_country_id', 'target_city_id', 'date_id'], how='left', indicator=True)
+            df_car_driver_date_city_country_clean = df_car_driver_date_city_country_merge[df_car_driver_date_city_country_merge['_merge'] == 'left_only'].drop(['distance_km_y', \
+            'total_emission_y', '_merge'], axis=1).rename(columns={'distance_km_x':'distance_km', 'total_emission_x':'total_emission'})
+            load(df_car_driver_date_city_country_clean, 'car_driver_log')
+            print(df_car_driver_date_city_country_clean)
     else:
         print('No new data!')
 
