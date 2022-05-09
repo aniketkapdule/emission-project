@@ -2,7 +2,7 @@
 
 This project is a Near Real-Time ETL pipeline that will do the necessary transformations of the raw data which is in the form of CSV files, the end goal here is to be able to calculate the total emission on a brand level, car level, and driver level. There are a lot of different tools and frameworks that are used to build ETL pipelines. In this project, the ETL is built using Python, Docker, PostgreSQL, and Airflow.
 
-## Installation
+## Setup
 
 1. Make sure you have [Docker](https://docs.docker.com/engine/install/) installed on your machine.
 2. Change directories at the command line to be inside the `emission-etl` folder
