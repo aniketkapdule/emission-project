@@ -19,4 +19,4 @@ cd emission-etl
         password: password
         ```
         - Then follow the images for the next steps.
-        ![step-1](https://github.com/aniketkapdule/emission-etl/pgadmin-steps/feature/adding_changes_to_airflow_dag/step_1.png?raw=true)
+        ![step-1](pgadmin_steps/step_1.png)
