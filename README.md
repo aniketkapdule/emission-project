@@ -60,3 +60,5 @@ docker-compose up
 
 ## Improvements to do
 1. Currently working on the use case where the drivers data and vehicle_consumptions data are not static.
+2. To add the logic for the null handling.
+3. To create a logic for --> if driver is updating his log then how to handle the duplication scenario.
