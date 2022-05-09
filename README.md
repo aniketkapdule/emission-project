@@ -52,4 +52,5 @@ docker-compose up
      docker-compose -f airflow-docker-compose.yml up -d
      ```
     - Now we can access our Airflow webserver at [http://localhost:8080](http://localhost:8080)
-    - Now we can run the `emission-dag` from the webserver.
+    - Now we can run the [emission-dag](http://localhost:8080/graph?dag_id=emission_dag) from the webserver.
+    - You can check the source code from in this file [emission-dag](dags/emission-dag.py)
