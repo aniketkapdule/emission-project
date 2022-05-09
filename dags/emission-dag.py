@@ -10,6 +10,7 @@ import shutil
 import psycopg2
 import string
 import random
+from datetime import datetime as dt
 
 default_args={
     'owner':'Aniket',
@@ -27,9 +28,9 @@ dag = DAG(
 )
 
 #data paths
-drivers = 'data/drivers.csv'
-vehicle_fuel_consumptions = 'data/vehicle_fuel_consumptions.csv'
-drivers_logbook = 'data/incoming_data/drivers_logbook.csv'
+drivers = 'data/drivers_incoming_data/drivers.csv'
+vehicle_fuel_consumptions = 'data/cars_incoming_data/vehicle_fuel_consumptions.csv'
+drivers_logbook = 'data/logbook_incoming_data/drivers_logbook.csv'
 
 #just a function for logging in airflow logs
 def logger(func):
@@ -60,13 +61,6 @@ def load(df, table_name, if_exists='append'):
     db_engine, cursor = connect_db()
     df.to_sql(table_name, db_engine, if_exists=if_exists, index=False)
     print(f'loaded {table_name}')
-
-    #if table_name in ['drivers', 'cars']:
-    #    try:
-    #        df.to_sql('drivers', db_engine, if_exists='fail', index=False)
-    #    except ValueError:
-    #        print('Table already')
-    #elif table_name in ['car_driver_logbook']:
 
 def select_table_from_db(table):
     db_engine, cursor = connect_db()
@@ -159,10 +153,10 @@ def create_tables():
     CREATE TABLE IF NOT EXISTS car_driver_log(
 	    car_id INT,
 	    driver_id INT,
-	    start_city VARCHAR(50),
-	    start_country VARCHAR(50),
-	    target_city VARCHAR(50),
-	    target_country VARCHAR(50),
+	    start_city_id INT,
+	    start_country_id INT,
+	    target_city_id INT,
+	    target_country_id INT,
 	    distance_km FLOAT,
 	    date_id INT,
 	    total_emission FLOAT,
@@ -177,7 +171,23 @@ def create_tables():
         CONSTRAINT fk__date__date_id__car_driver_log__date_id
 	    FOREIGN KEY (date_id)
 	    REFERENCES date(date_id)
-	    ON UPDATE CASCADE ON DELETE RESTRICT
+	    ON UPDATE CASCADE ON DELETE RESTRICT,
+		CONSTRAINT fk__city__city_id__car_driver_log__start_city_id
+		FOREIGN KEY (start_city_id)
+		REFERENCES city(city_id)
+		ON UPDATE CASCADE ON DELETE RESTRICT,
+		CONSTRAINT fk__city__city_id__car_driver_log__target_city_id
+		FOREIGN KEY (target_city_id)
+		REFERENCES city(city_id)
+		ON UPDATE CASCADE ON DELETE RESTRICT,
+		CONSTRAINT fk__country__country_id__car_driver_log__target_country_id
+		FOREIGN KEY (target_country_id)
+		REFERENCES country(country_id)
+		ON UPDATE CASCADE ON DELETE RESTRICT,
+		CONSTRAINT fk__country__country_id__car_driver_log__start_country_id
+		FOREIGN KEY (start_country_id)
+		REFERENCES country(country_id)
+		ON UPDATE CASCADE ON DELETE RESTRICT
     );''')   
     print('car_driver_log done')
 
@@ -185,19 +195,35 @@ def create_tables():
 @logger
 def extract(drivers, vehicle_fuel_consumptions, drivers_logbook):
     print("extracting the data")
-    df_drivers_raw = pd.read_csv(drivers)
-    df_veh_cons_raw = pd.read_csv(vehicle_fuel_consumptions)
-    df_drivers_logbook_raw = pd.read_csv(drivers_logbook)
-    #it will check if the data is there or not, if the data is not there it will initiate an empty dataframe.
-    #if os.path.isfile(drivers_logbook):
-    #    df_drivers_logbook_raw = pd.read_csv(drivers_logbook)
-    #    shutil.move("data/incoming_data/drivers_logbook.csv", "data/used_data/drivers_logbook.csv")
-    #else:
-    #    print('No new data!')
-    #    #empty dataframe
-    #    df_drivers_logbook_raw = pd.DataFrame(columns=['brand', 'model', 'engine_size_l', 'cylinders', 'fuel_type',
-    #   'transmission', 'name', 'first_name', 'start_city', 'start_country',
-    #   'target_city', 'target_country', 'distance_km', 'date'])
+    timestr = dt.now().strftime("%d_%m_%Y_%H_%M_%S")
+    # it will check if the data is there or not, if the data is not there it will initiate an empty dataframe.
+    if os.path.isfile(drivers):
+        df_drivers_raw = pd.read_csv(drivers)
+        shutil.move("data/drivers_incoming_data/drivers.csv", f"data/drivers_used_data/drivers_{timestr}.csv")
+    else:
+        print('No new drivers data!')
+        #empty dataframe
+        df_drivers_raw = pd.DataFrame(columns=['name', 'first_name'])
+    
+    if os.path.isfile(vehicle_fuel_consumptions):
+        df_veh_cons_raw = pd.read_csv(vehicle_fuel_consumptions)
+        shutil.move("data/cars_incoming_data/vehicle_fuel_consumptions.csv", f"data/cars_used_data/vehicle_fuel_consumptions_{timestr}.csv")
+    else:
+        print('No new cars data!')
+        #empty dataframe
+        df_veh_cons_raw = pd.DataFrame(columns=['brand', 'model', 'vehicle_class', 'engine_size_l', 
+        'cylinders', 'transmission', 'fuel_type', 'fuel_consumption_l_per_hundred_km', 
+        'hwy_l_per_hundred_km', 'comb_l_per_hundred', 'comb_mpg', 'co2_emission_g_per_km'])
+    
+    if os.path.isfile(drivers_logbook):
+        df_drivers_logbook_raw = pd.read_csv(drivers_logbook)
+        shutil.move("data/logbook_incoming_data/drivers_logbook.csv", f"data/logbook_used_data/drivers_logbook{timestr}.csv")
+    else:
+        print('No new logbook data!')
+        #empty dataframe
+        df_drivers_logbook_raw = pd.DataFrame(columns=['brand', 'model', 'engine_size_l', 'cylinders', 'fuel_type',
+       'transmission', 'name', 'first_name', 'start_city', 'start_country',
+       'target_city', 'target_country', 'distance_km', 'date'])
     return df_drivers_raw, df_veh_cons_raw, df_drivers_logbook_raw           
 
 @logger
@@ -233,7 +259,7 @@ def transform_and_load():
     else:
         pass
     
-    load(df_drivers_logbook_raw, table_name='drivers_logbook_raw')
+    #load(df_drivers_logbook_raw, table_name='drivers_logbook_raw')
     df_cars_db = select_table_from_db(table="cars")
     df_drivers_db = select_table_from_db(table="drivers")
 
