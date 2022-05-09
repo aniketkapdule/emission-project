@@ -39,7 +39,7 @@ docker-compose up
           and then you can start your testing.
 
 5. Now, let's start our Airflow service.
-   - First we will have to initialize the Airflow so that Airflow database and Airflow USER gets created. It will take around 1 minute.
+   - First, we will have to initialize the Airflow so that the Airflow database and Airflow USER gets created. It will take around 1 minute.
      ```bash
      docker-compose -f airflow-docker-compose.yml up airflow-init
      ```
@@ -47,10 +47,16 @@ docker-compose up
      ```bash
      docker-compose -f airflow-docker-compose.yml up
      ```
-    - If you don't want to see the logs on cmd and you want to run it in background just run below command instead of the command mentioned above.
+    - If you don't want to see the logs on cmd and you want to run it in the background just run the below command instead of the command mentioned above.
      ```bash
      docker-compose -f airflow-docker-compose.yml up -d
      ```
     - Now we can access our Airflow webserver at [http://localhost:8080](http://localhost:8080)
     - Now we can run the [emission-dag](http://localhost:8080/graph?dag_id=emission_dag) from the webserver.
-    - You can check the source code from in this file [emission-dag](dags/emission-dag.py)
+    - You can check the source code in this file [emission-dag](dags/emission-dag.py)
+## Notes
+1. The incoming data is stored in the data/_tablename_incoming_data_/ whenever the ETL will run the data will move inside the used data folder with a timestamp attached to it as a suffix.
+2. Right now while building the pipeline it is assumed that the drivers data and the vehicle_consumptions data are static.
+
+## Improvements to do
+1. Currently working on the use case where the drivers data and vehicle_consumptions data are not static.
