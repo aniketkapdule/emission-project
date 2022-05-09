@@ -38,4 +38,18 @@ docker-compose up
         ```
           and then you can start your testing.
 
-5. 
+5. Now, let's start our Airflow service.
+   - First we will have to initialize the Airflow so that Airflow database and Airflow USER gets created. It will take around 1 minute.
+     ```bash
+     docker-compose -f airflow-docker-compose.yml up airflow-init
+     ```
+    - Once we have the Airflow database and the Airflow USER, we can start the Airflow services.
+     ```bash
+     docker-compose -f airflow-docker-compose.yml up
+     ```
+    - If you don't want to see the logs on cmd and you want to run it in background just run below command instead of the command mentioned above.
+     ```bash
+     docker-compose -f airflow-docker-compose.yml up -d
+     ```
+    - Now we can access our Airflow webserver at [http://localhost:8080](http://localhost:8080)
+    - Now we can run the `emission-dag` from the webserver.
