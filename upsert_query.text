@@ -1,0 +1,9 @@
+CREATE TEMPORARY TABLE {src} (LIKE {dest});
+COPY {src} FROM '{s3path}' 
+CREDENTIALS 'aws_access_key_id={access_key};aws_secret_access_key={secret_key}' 
+DELIMITER '{delimiter}' gzip;
+BEGIN;
+LOCK {dest};
+DELETE FROM {dest} USING {src} WHERE {join_clause};
+INSERT INTO {dest} SELECT * FROM {src};
+END;
