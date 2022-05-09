@@ -9,7 +9,11 @@ This project is a Near Real-Time ETL pipeline that will do the necessary transfo
 ```bash
 cd emission-etl
 ```
-3. In this step three services will get initialized, Jupyter Lab for testing, Postgres Database, and Pgadmin webserver to run queries on our tables.
+3. Now run,
+```bash
+docker-compose up
+```
+    In this step three services will get initialized, Jupyter Lab for testing, Postgres Database, and Pgadmin webserver to run queries on our tables.
 
       - We can access Jupyter Lab at [http://localhost:8080/](http://localhost:8080/)
       - Let's look at our database inside the pgadmin webserver 
@@ -19,4 +23,11 @@ cd emission-etl
         password: password
         ```
         - Then follow the images for the next steps.
+
         ![step-1](pgadmin_steps/step_1.png)
+
+        ![step-2](pgadmin_steps/step_2.png)
+
+        ![step-3](pgadmin_steps/step_3.png)
+        
+        
