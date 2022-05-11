@@ -7,10 +7,9 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.utils.dates import days_ago
 from sqlalchemy import create_engine, inspect
 import shutil
-import psycopg2
-import string
-import random
 from datetime import datetime as dt
+from create_tables import create_tables
+from utils import logger, connect_db, load, select_table_from_db
 
 default_args={
     'owner':'Aniket',
@@ -31,166 +30,6 @@ dag = DAG(
 drivers = 'data/drivers_incoming_data/drivers.csv'
 vehicle_fuel_consumptions = 'data/cars_incoming_data/vehicle_fuel_consumptions.csv'
 drivers_logbook = 'data/logbook_incoming_data/drivers_logbook.csv'
-
-#just a function for logging in airflow logs
-def logger(func):
-    from datetime import datetime, timezone
-
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        called_at = datetime.now(timezone.utc)
-        print(f">>> Running {func.__name__!r} function. Logged at {called_at}")
-        to_execute = func(*args, **kwargs)
-        print(f">>> Function: {func.__name__!r} executed. Logged at {called_at}")
-        return to_execute
-
-    return wrapper
-
-@logger
-def connect_db():
-    print('Connecting to db')
-    connection_uri = "postgres+psycopg2://postgres:postgres@database:5432/planetly"
-    engine = create_engine(connection_uri, pool_pre_ping=True)
-    engine.connect()
-    conn = psycopg2.connect(database="planetly", user='postgres',password='postgres', host='database', port='5432')
-    conn.autocommit = True
-    cursor = conn.cursor()
-    return engine, cursor
-
-def load(df, table_name, if_exists='append'): 
-    db_engine, cursor = connect_db()
-    df.to_sql(table_name, db_engine, if_exists=if_exists, index=False)
-    print(f'loaded {table_name}')
-
-def select_table_from_db(table):
-    db_engine, cursor = connect_db()
-    df = pd.read_sql_query(f"SELECT * from {table};", db_engine)
-    print(f"selected {table}")
-    return df
-
-def create_date_dim(start_date='2010-01-01', end_date='2030-01-01'):
-    df = pd.DataFrame({"date":pd.date_range(start_date, end_date)})
-    df["week_day"] = df.date.dt.day_name()
-    df["day"] = df.date.dt.day
-    df["month"] = df.date.dt.month
-    df["week"] = df.date.dt.isocalendar().week
-    df["quarter"] = df.date.dt.quarter
-    df["year"] = df.date.dt.year
-    df.insert(0, 'date_id', (df.year.astype(str) + df.month.astype(str).str.zfill(2) + df.day.astype(str).str.zfill(2)).astype(int))
-    return df
-
-@logger
-def create_tables():
-    db_engine, cursor = connect_db()
-
-    #Creating drivers table
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS drivers(
-        driver_id SERIAL PRIMARY KEY,
-        name VARCHAR(50),
-        first_name VARCHAR(50)
-    );''')
-    print('drivers done')
-
-    #creating cars table
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS cars(
-        car_id SERIAL PRIMARY KEY,
-        brand VARCHAR(50), 
-        model VARCHAR(50), 
-        vehicle_class VARCHAR(50), 
-        engine_size_l FLOAT, 
-        cylinders FLOAT, 
-        transmission VARCHAR(50), 
-        fuel_type VARCHAR(50),
-        fuel_consumption_l_per_hundred_km FLOAT,
-        hwy_l_per_hundred_km FLOAT,
-        comb_l_per_hundred FLOAT,
-        comb_mpg INT,
-        co2_emission_g_per_km INT
-    );''')
-    print('car done')
-
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS country(
-            country_id SERIAL PRIMARY KEY,
-            country_name VARCHAR(50)
-        );
-        """)
-    
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS city(
-            city_id SERIAL PRIMARY KEY,
-            city_name VARCHAR(50),
-            country_id INT,
-            CONSTRAINT fk__country__country_id__city__country_id
-            FOREIGN KEY (country_id)
-            REFERENCES country(country_id)
-            ON UPDATE CASCADE ON DELETE CASCADE
-        );
-        """)
-
-    # Adding date dimension table if not exists
-    database_tables = pd.read_sql_query("""SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE';""", db_engine)
-    if 'date' in database_tables['table_name'].values:
-        pass
-    else:
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS date(
-	            date_id INT PRIMARY KEY,
-	            date DATE,
-	            week_day VARCHAR(10),
-	            day INT,
-	            month INT,
-	            week INT,
-	            quarter INT,
-	            year INT
-            );
-        """)
-        load(create_date_dim(), 'date', if_exists='append')
-
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS car_driver_log(
-	    car_id INT,
-	    driver_id INT,
-	    start_city_id INT,
-	    start_country_id INT,
-	    target_city_id INT,
-	    target_country_id INT,
-	    distance_km FLOAT,
-	    date_id INT,
-	    total_emission FLOAT,
-	    CONSTRAINT fk__cars__car_id__car_driver_log__car_id
-	    FOREIGN KEY (car_id)
-	    REFERENCES cars(car_id)
-	    ON UPDATE CASCADE ON DELETE RESTRICT,
-	    CONSTRAINT fk__drivers__driver_id__car_driver_log__driver_id
-	    FOREIGN KEY (driver_id)
-	    REFERENCES drivers(driver_id)
-	    ON UPDATE CASCADE ON DELETE RESTRICT,
-        CONSTRAINT fk__date__date_id__car_driver_log__date_id
-	    FOREIGN KEY (date_id)
-	    REFERENCES date(date_id)
-	    ON UPDATE CASCADE ON DELETE RESTRICT,
-		CONSTRAINT fk__city__city_id__car_driver_log__start_city_id
-		FOREIGN KEY (start_city_id)
-		REFERENCES city(city_id)
-		ON UPDATE CASCADE ON DELETE RESTRICT,
-		CONSTRAINT fk__city__city_id__car_driver_log__target_city_id
-		FOREIGN KEY (target_city_id)
-		REFERENCES city(city_id)
-		ON UPDATE CASCADE ON DELETE RESTRICT,
-		CONSTRAINT fk__country__country_id__car_driver_log__target_country_id
-		FOREIGN KEY (target_country_id)
-		REFERENCES country(country_id)
-		ON UPDATE CASCADE ON DELETE RESTRICT,
-		CONSTRAINT fk__country__country_id__car_driver_log__start_country_id
-		FOREIGN KEY (start_country_id)
-		REFERENCES country(country_id)
-		ON UPDATE CASCADE ON DELETE RESTRICT
-    );''')   
-    print('car_driver_log done')
-
 
 @logger
 def extract(drivers, vehicle_fuel_consumptions, drivers_logbook):
@@ -240,7 +79,12 @@ def transform_and_load():
     if drivers_count == 0:
         load(df_drivers_clean, table_name='drivers')
     else:
-        pass
+        df_drivers_db = select_table_from_db('drivers')
+        df_drivers_merge = df_drivers_clean.merge(df_drivers_db, how='left', on=['name', 'first_name'], indicator=True)
+        df_drivers_fresh_data_clean = df_drivers_merge.loc[df_drivers_merge['_merge']=='left_only'].drop(columns=['_merge', 'driver_id'])
+        load(df_drivers_fresh_data_clean, table_name='drivers')
+
+
     #cars table
     df_veh_cons_raw.rename(columns={'BRAND':'brand', 'MODEL':'model', 'VEHICLE CLASS':'vehicle_class', 'ENGINE SIZE L':'engine_size_l', 'CYLINDERS':'cylinders',
        'TRANSMISSION':'transmission', 'FUEL_TYPE':'fuel_type', 'FUEL CONSUMPTION (L/100 km)':'fuel_consumption_l_per_hundred_km',
@@ -257,7 +101,14 @@ def transform_and_load():
     if cars_count == 0:
         load(df_cars_clean, table_name='cars')
     else:
-        pass
+        df_cars_db = select_table_from_db('cars')
+        df_cars_merge = df_cars_clean.merge(df_cars_db, how='left', on=['brand', 'model', 'vehicle_class', 'engine_size_l', 'cylinders',
+                                                                        'transmission', 'fuel_type', 'fuel_consumption_l_per_hundred_km',
+                                                                        'hwy_l_per_hundred_km', 'comb_l_per_hundred', 'comb_mpg',
+                                                                        'co2_emission_g_per_km'], indicator=True)
+        df_cars_fresh_data_clean = df_cars_merge.loc[df_cars_merge['_merge']=='left_only'].drop(columns=['_merge', 'car_id'])
+        load(df_cars_fresh_data_clean, table_name='cars')
+
     
     #load(df_drivers_logbook_raw, table_name='drivers_logbook_raw')
     df_cars_db = select_table_from_db(table="cars")
